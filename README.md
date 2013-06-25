@@ -94,9 +94,16 @@ If not set, the client will default to using ssh-agent.
 
 Setting this option will change the known_hosts file that the client will use to identify the server's public key when verifying the reply.
 
-    plugin.sshkey.server.known_hosts = /home/alice/.ssh/my_other_known_hosts
+    plugin.sshkey.client.known_hosts = /home/alice/.ssh/my_other_known_hosts
 
 If not set, the client known_hosts file will default to /home/alice/.ssh/known_hosts
+
+
+###authorized_keys
+
+In cases where the host verificiation step is not required, the client can use a authorized_keys file which will be used to verify the reply.
+
+    plugin.sshkey.client.authorized_keys = /home/bob/.ssh/authorized_keys
 
 ###send_key
 

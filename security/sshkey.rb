@@ -263,6 +263,7 @@ module MCollective
       # Create a client verifier object which uses the correct public key
       def client_verifier(senderid)
         verifier = SSH::Key::Verifier.new(senderid)
+        verifier.use_authorized_keys = false
 
         if publickey_dir = lookup_config_option('publickey_dir')
           Log.debug("Using public key directory: '%s'" % publickey_dir)
@@ -272,6 +273,11 @@ module MCollective
           Log.debug("Using custom known_hosts file: '%s'" % known_hosts)
           verifier.add_public_key_data(find_key_in_known_hosts(senderid, known_hosts))
 
+        elsif (authorized_keys = lookup_config_option('authorized_keys'))
+          Log.debug("Found custom authorized_keys file: '%s'" % authorized_keys)
+          verifier.authorized_keys_file = authorized_keys
+          verifier.use_authorized_keys = true
+
         else
           begin
             user = Etc.getlogin
@@ -279,12 +285,11 @@ module MCollective
             Log.debug("Using default known_hosts file for user '%s': ''" % [user, known_hosts])
             verifier.add_public_key_data(find_key_in_known_hosts(senderid, "%s" % known_hosts))
           rescue => e
-            raise("Cannot find authorized_keys file for user '%s': '%s'" % [user, known_hosts])
+            raise("Cannot find known_hosts file for user '%s': '%s'" % [user, known_hosts])
           end
         end
 
         verifier.use_agent = false
-        verifier.use_authorized_keys = false
 
         verifier
       end

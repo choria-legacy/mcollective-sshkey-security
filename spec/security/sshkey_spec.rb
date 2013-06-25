@@ -484,12 +484,13 @@ module MCollective
           Etc.stubs(:getlogin).returns('rspec')
           client_verifier.stubs(:use_agent=).with(false)
           client_verifier.stubs(:use_authorized_keys=).with(false)
-          client_verifier.expects(:add_public_key_data).with('ssh-rsa 123')
         end
 
         it 'should return a verifier that uses the default known_hosts' do
           @plugin.stubs(:lookup_config_option).with('publickey_dir').returns(false)
           @plugin.stubs(:lookup_config_option).with('known_hosts').returns(false)
+          @plugin.stubs(:lookup_config_option).with('authorized_keys').returns(false)
+          client_verifier.expects(:add_public_key_data).with('ssh-rsa 123')
           pw = mock
           pw.stubs(:dir).returns('/home/rspec')
           Etc.stubs(:getpwnam).returns(pw)
@@ -500,15 +501,27 @@ module MCollective
         it 'should return a verifier uses a specified known_hosts file' do
           @plugin.stubs(:lookup_config_option).with('publickey_dir').returns(false)
           @plugin.stubs(:lookup_config_option).with('known_hosts').returns('ssh/known_hosts')
+          client_verifier.expects(:add_public_key_data).with('ssh-rsa 123')
           @plugin.stubs(:find_key_in_known_hosts).with('host1.your.com', 'ssh/known_hosts').returns('ssh-rsa 123')
+          @plugin.send(:client_verifier, 'host1.your.com').should == client_verifier
+        end
+
+        it 'should return a verifier that uses an authorized_keys file' do
+          @plugin.stubs(:lookup_config_option).with('publickey_dir').returns(false)
+          @plugin.stubs(:lookup_config_option).with('known_hosts').returns(false)
+          @plugin.stubs(:lookup_config_option).with('authorized_keys').returns('ssh/authorized_keys')
+          client_verifier.expects(:use_authorized_keys=).with(true)
+          client_verifier.expects(:authorized_keys_file=).with('ssh/authorized_keys')
           @plugin.send(:client_verifier, 'host1.your.com').should == client_verifier
         end
 
         it 'should return a verifier that loads a public key from disk' do
           @plugin.stubs(:lookup_config_option).with('publickey_dir').returns('ssh/known_hosts')
           @plugin.stubs(:find_shared_public_key).with('ssh/known_hosts', 'host1.your.com').returns('ssh-rsa 123')
+          client_verifier.expects(:add_public_key_data).with('ssh-rsa 123')
           @plugin.send(:client_verifier, 'host1.your.com').should == client_verifier
         end
+
       end
 
       describe '#find_shared_public_key' do
