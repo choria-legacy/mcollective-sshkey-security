@@ -244,11 +244,15 @@ module MCollective
 
         if File.exists?(known_hosts)
           File.read(known_hosts).each_line do |line|
-            if line =~ search_for
-              fields = line.split
-              key = fields[-2] << ' ' << fields[-1]
-              break
+            fields = line.split
+            fields[0].split(',').each do |maybehost|
+              if maybehost =~ search_for
+                fields = line.split
+                key = fields[-2] << ' ' << fields[-1]
+                break
+              end
             end
+            break unless key.nil?
           end
         end
 
