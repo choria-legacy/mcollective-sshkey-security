@@ -9,10 +9,10 @@ A security plugin that uses ssh keys to sign and validate messages.
 
 ## Configuration
 
-The sshkey security plugin can be enabled by setting the 'security' field in both the client and server
+The sshkey security plugin can be enabled by setting the 'securityprovider' field in both the client and server
 configuration files.
 
-    security = sshkey
+    securityprovider = sshkey
 
 ## Server configuration
 
