@@ -464,6 +464,9 @@ module MCollective
 
           result = @plugin.send(:find_key_in_known_hosts, 'rspec.com', 'known_hosts')
           result.should == 'ssh-rsa 123'
+
+          result = @plugin.send(:find_key_in_known_hosts, '192.167.1.1', 'known_hosts')
+          result.should == 'ssh-rsa 123'
         end
 
         it 'should fail if the key cannot be found' do
