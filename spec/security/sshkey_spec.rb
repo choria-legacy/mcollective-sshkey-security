@@ -569,6 +569,7 @@ module MCollective
           Etc.stubs(:getpwnam).with('rspec').returns(pw)
           pw.stubs(:dir).returns('/home/rspec')
           node_verifier.expects(:authorized_keys_file=).with('/home/rspec/.ssh/authorized_keys')
+          node_verifier.expects(:use_agent=).with(false)
           @plugin.send(:node_verifier, 'caller=rspec', nil, nil).should == node_verifier
         end
 
@@ -576,6 +577,7 @@ module MCollective
           @plugin.stubs(:lookup_config_option).with('publickey_dir').returns(false)
           @plugin.stubs(:lookup_config_option).with('authorized_keys').returns('ssh/authorized_keys')
           node_verifier.expects(:authorized_keys_file=).with('ssh/authorized_keys')
+          node_verifier.expects(:use_agent=).with(false)
           @plugin.send(:node_verifier, 'caller=rspec', nil, nil).should == node_verifier
         end
 
@@ -585,7 +587,7 @@ module MCollective
           @plugin.stubs(:find_shared_public_key).with('ssh/authorized_keys', 'rspec').returns('ssh-rsa 123')
           node_verifier.expects(:add_public_key_data).with('ssh-rsa 123')
           node_verifier.expects(:use_authorized_keys=).with(false)
-
+          node_verifier.expects(:use_agent=).with(false)
           @plugin.send(:node_verifier, 'caller=rspec', nil, nil).should == node_verifier
         end
 
@@ -606,6 +608,7 @@ module MCollective
         end
 
         it 'should return a verfier for a registration request' do
+          node_verifier.expects(:use_agent=).with(false)
           node_verifier.expects(:add_public_key_data).with('ssh-rsa 123')
           node_verifier.expects(:use_authorized_keys=).with(false)
           @plugin.send(:node_verifier, 'caller=rspec', true, 'ssh-rsa 123').should == node_verifier
