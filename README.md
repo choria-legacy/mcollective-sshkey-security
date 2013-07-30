@@ -37,6 +37,11 @@ authorized_keys file used will default to /home/bob/.ssh/authorized_keys, where 
 
     plugin.sshkey.server.authorized_keys = /etc/mcollective/my_other_authorized_keys
 
+As in sshd_config(5)'s AuthorizedKeysFile property, the %u sequence will be replaced with the user ID of
+the user calling the agent, e.g.
+
+    plugin.sshkey.server.authorized_keys = /etc/admin_authorized_keys/%u
+
 ###send_key
 
 This will send the specified public key as part of the reply to the client. This is useful when you do not want to manage

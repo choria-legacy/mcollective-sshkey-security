@@ -581,6 +581,14 @@ module MCollective
           @plugin.send(:node_verifier, 'caller=rspec', nil, nil).should == node_verifier
         end
 
+        it 'should return a verifier having interpolcated %u into authorized_keys file path' do
+          @plugin.stubs(:lookup_config_option).with('publickey_dir').returns(false)
+          @plugin.stubs(:lookup_config_option).with('authorized_keys').returns('ssh/%u/authorized_keys')
+          node_verifier.expects(:authorized_keys_file=).with('ssh/rspec/authorized_keys')
+          node_verifier.expects(:use_agent=).with(false)
+          @plugin.send(:node_verifier, 'caller=rspec', nil, nil).should == node_verifier
+        end
+
         it 'should return a verifier with a public key loaded directly from disk' do
           @plugin.stubs(:lookup_config_option).with('publickey_dir').returns('ssh/authorized_keys')
           File.expects(:directory?).with('ssh/authorized_keys').returns(true)
