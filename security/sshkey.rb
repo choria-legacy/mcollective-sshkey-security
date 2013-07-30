@@ -341,6 +341,7 @@ module MCollective
           end
 
         elsif (authorized_keys = lookup_config_option('authorized_keys'))
+          authorized_keys = authorized_keys.sub('%u') { |c| user }
           Log.debug("Found custom authorized_keys file: '%s'" % authorized_keys)
           verifier.authorized_keys_file = authorized_keys
 
