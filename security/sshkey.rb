@@ -316,6 +316,7 @@ module MCollective
       def node_verifier(callerid, registration = false, pubkey = nil)
         user = callerid.split('=')[-1]
         verifier = SSH::Key::Verifier.new(user)
+        verifier.use_agent = false
 
         # Here we deal with the special case where a registration message
         # is being validated. send_key has to be defined in the configuration.
