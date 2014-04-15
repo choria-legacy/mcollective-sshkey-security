@@ -255,8 +255,8 @@ plugin.sshkey.client.send_key = /home/alice/.ssh/id_rsa
 ```
 #server
 securityprovider = sshkey
-public.sshkey.server.publickey_dir = /etc/ssh/user_keys
-public.sshkey.server.learn_public_keys = 1
+plugin.sshkey.server.publickey_dir = /etc/ssh/user_keys
+plugin.sshkey.server.learn_public_keys = 1
 ```
 
 This will however only write a key to disk once. If a new key is received, it will not overwrite the stored key.
@@ -265,9 +265,9 @@ The following server configuration snippet will allow the server to overwrite st
 ```
 #server
 securityprovider = sshkey
-publick.sshkey.server.publickey_dir = /etc/ssh/user_keys
-public.sshkey.server.learn_public_keys = 1
-public.sshkey.server.overwrite_stored_keys = 1
+plugin.sshkey.server.publickey_dir = /etc/ssh/user_keys
+plugin.sshkey.server.learn_public_keys = 1
+plugin.sshkey.server.overwrite_stored_keys = 1
 ```
 
 Note that by default the ability to learn and overwrite keys is disabled. Enabling these settings reduces the
