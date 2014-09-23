@@ -208,7 +208,9 @@ module MCollective
 
       describe '#callerid' do
         it 'should return the callerid in the correct format' do
-          Etc.stubs(:getlogin).returns('rspec')
+          passwd = mock('passwd')
+          passwd.stubs(:name).returns('rspec')
+          Etc.stubs(:getpwuid).returns(passwd)
           @plugin.callerid.should == 'sshkey=rspec'
         end
       end
@@ -484,7 +486,9 @@ module MCollective
 
         before do
           SSH::Key::Verifier.stubs(:new).with('host1.your.com').returns(client_verifier)
-          Etc.stubs(:getlogin).returns('rspec')
+          passwd = mock('passwd')
+          passwd.stubs(:name).returns('rspec')
+          Etc.stubs(:getpwuid).returns(passwd)
           client_verifier.stubs(:use_agent=).with(false)
           client_verifier.stubs(:use_authorized_keys=).with(false)
         end
