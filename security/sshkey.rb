@@ -240,13 +240,14 @@ module MCollective
       # Looks for a specific key in a known hosts file
       def find_key_in_known_hosts(hostname, known_hosts)
         key = nil
-        search_for = /^#{hostname}/
+        #search_for = /^#{hostname}/
 
         if File.exists?(known_hosts)
           File.read(known_hosts).each_line do |line|
             fields = line.split
             fields[0].split(',').each do |maybehost|
-              if maybehost =~ search_for
+              #if maybehost =~ search_for
+              if maybehost == hostname
                 fields = line.split
                 key = fields[-2] << ' ' << fields[-1]
                 break
