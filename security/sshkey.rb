@@ -99,7 +99,7 @@ module MCollective
       end
 
       def callerid
-        'sshkey=%s' % Etc.getlogin
+        'sshkey=%s' % Etc.getpwuid(Process.uid).name
       end
 
       private
@@ -284,7 +284,7 @@ module MCollective
 
         else
           begin
-            user = Etc.getlogin
+            user = Etc.getpwuid(Process.uid).name
             known_hosts = File.join(Etc.getpwnam(user).dir, '.ssh', 'known_hosts')
             Log.debug("Using default known_hosts file for user '%s': ''" % [user, known_hosts])
             verifier.add_public_key_data(find_key_in_known_hosts(senderid, "%s" % known_hosts))
