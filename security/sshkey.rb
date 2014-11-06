@@ -257,8 +257,9 @@ module MCollective
 
       # This should be safe, as we parse the known hosts file only in the client...
       def parse_known_hosts_file(known_hosts)
-        return unless @known_hosts_cache.length == 0
         if File.exists?(known_hosts)
+          known_hosts_mtime = File.mtime(known_hosts).to_i
+          return if known_hosts_mtime == @known_hosts_mtime
           File.read(known_hosts).each_line do |line|
             next if line =~ /^#/
             fields = line.split
@@ -267,6 +268,10 @@ module MCollective
               @known_hosts_cache[host] = key
             end
           end
+          @known_hosts_mtime = known_hosts_mtime
+        else
+          @known_hosts_mtime = 0
+          @known_hosts_cache = {}
         end
       end
 
