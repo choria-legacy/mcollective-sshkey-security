@@ -25,6 +25,11 @@ module MCollective
       require 'ssh/key/verifier'
       require 'etc'
 
+      def initialize
+        @known_hosts_cache = {}
+        super
+      end
+
       def decodemsg(msg)
         body = Marshal.load(msg.payload)
 
@@ -237,24 +242,10 @@ module MCollective
         end
       end
 
-      # Looks for a specific key in a known hosts file
+      # Looks for a specific key in  known hosts file
       def find_key_in_known_hosts(hostname, known_hosts)
-        key = nil
-        search_for = /^#{hostname}/
-
-        if File.exists?(known_hosts)
-          File.read(known_hosts).each_line do |line|
-            fields = line.split
-            fields[0].split(',').each do |maybehost|
-              if maybehost =~ search_for
-                fields = line.split
-                key = fields[-2] << ' ' << fields[-1]
-                break
-              end
-            end
-            break unless key.nil?
-          end
-        end
+        parse_known_hosts_file known_hosts
+        key = @known_hosts_cache[hostname]
 
         unless key
           Log.warn("Could not find a key for host '%s' in file '%s'" % [hostname, known_hosts])
@@ -262,6 +253,21 @@ module MCollective
         end
 
         key
+      end
+
+      # This should be safe, as we parse the known hosts file only in the client...
+      def parse_known_hosts_file(known_hosts)
+        return unless @known_hosts_cache.length == 0
+        if File.exists?(known_hosts)
+          File.read(known_hosts).each_line do |line|
+            next if line =~ /^#/
+            fields = line.split
+            key = fields[-2] << ' ' << fields[-1]
+            fields[0].split(',').each do |host|
+              @known_hosts_cache[host] = key
+            end
+          end
+        end
       end
 
       # Create a client verifier object which uses the correct public key
