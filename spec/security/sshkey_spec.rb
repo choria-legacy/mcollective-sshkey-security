@@ -22,6 +22,10 @@ module MCollective
 
     describe Sshkey do
       before do
+        ENV['MCOLLECTIVE_CALLERID'] = nil # Make sure to blank these before tests
+        ENV['MCOLLECTIVE_SSH_KEY'] = nil
+        ENV['MCOLLECTIVE_SSH_KEY_PASSPHRASE'] = nil
+
         @config = mock("config")
         @config.stubs(:identity).returns("test")
         @config.stubs(:configured).returns(true)
@@ -207,11 +211,19 @@ module MCollective
       end
 
       describe '#callerid' do
-        it 'should return the callerid in the correct format' do
-          passwd = mock('passwd')
-          passwd.stubs(:name).returns('rspec')
-          Etc.stubs(:getpwuid).returns(passwd)
-          @plugin.callerid.should == 'sshkey=rspec'
+        context 'no environment variable' do
+          it 'should return the callerid in the correct format' do
+            passwd = mock('passwd')
+            passwd.stubs(:name).returns('rspec')
+            Etc.stubs(:getpwuid).returns(passwd)
+            @plugin.callerid.should == 'sshkey=rspec'
+          end
+        end
+        context 'with environment variable' do
+          it 'should return the callerid in the correct format' do
+            ENV['MCOLLECTIVE_CALLERID'] = 'rspec2'
+            @plugin.callerid.should == 'sshkey=rspec2'
+          end
         end
       end
 
@@ -360,12 +372,27 @@ module MCollective
 
       describe '#add_key_to_signer' do
         let(:signer) { mock }
+        context 'no pass phrase' do
+          it 'should add a key file to a signer' do
+            signer.expects(:add_key_file).with('ssh/key')
+            signer.expects(:use_agent=).with(false)
 
-        it 'should add a key file to a signer' do
-          signer.expects(:add_key_file).with('ssh/key')
-          signer.expects(:use_agent=).with(false)
+            @plugin.send(:add_key_to_signer, signer, 'ssh/key')
+          end
+          it 'should add a key to a signer when passphrase is nil' do
+            signer.expects(:add_key_file).with('ssh/key')
+            signer.expects(:use_agent=).with(false)
 
-          @plugin.send(:add_key_to_signer, signer, 'ssh/key')
+            @plugin.send(:add_key_to_signer, signer, 'ssh/key', nil)
+          end
+        end
+        context 'with pass phrase' do
+          it 'should add a key file to a signer' do
+            signer.expects(:add_key_file).with('ssh/key', 'mypassphrase')
+            signer.expects(:use_agent=).with(false)
+
+            @plugin.send(:add_key_to_signer, signer, 'ssh/key', 'mypassphrase')
+          end
         end
       end
 
@@ -386,11 +413,42 @@ module MCollective
           @plugin.send(:makehash, {}).should == 'hash'
         end
 
-        it 'should create the correct client hash using a specified private key' do
+        context 'client hash' do
+          before do
+            @plugin.instance_variable_set(:@initiated_by, :client)
+            @plugin.stubs(:lookup_config_option).with('private_key').returns('id_rsa')
+            File.stubs(:exists?).with('id_rsa').returns(true)
+          end
+
+          it 'should create the correct client hash using a specified private key' do
+            @plugin.stubs(:lookup_config_option).with('private_key_passphrase').returns(nil)
+            @plugin.expects(:add_key_to_signer).with(signer, 'id_rsa', nil)
+
+            @plugin.send(:makehash, {}).should == 'hash'
+          end
+
+          it 'should create the correct client hash using a specified private key and passphrase' do
+            @plugin.stubs(:lookup_config_option).with('private_key_passphrase').returns('mypassphrase')
+            @plugin.expects(:add_key_to_signer).with(signer, 'id_rsa', 'mypassphrase')
+
+            @plugin.send(:makehash, {}).should == 'hash'
+          end
+        end
+
+
+        it 'should create the correct client hash using private key from environment' do
           @plugin.instance_variable_set(:@initiated_by, :client)
-          @plugin.stubs(:lookup_config_option).with('private_key').returns('id_rsa')
-          File.stubs(:exists?).with('id_rsa').returns(true)
-          @plugin.expects(:add_key_to_signer).with(signer, 'id_rsa')
+          @plugin.expects(:add_key_to_signer).with(signer, 'id_rsa', nil)
+          ENV['MCOLLECTIVE_SSH_KEY'] = 'id_rsa'
+
+          @plugin.send(:makehash, {}).should == 'hash'
+        end
+
+        it 'should create the correct client hash using private key and pass phrase from environment' do
+          @plugin.instance_variable_set(:@initiated_by, :client)
+          @plugin.expects(:add_key_to_signer).with(signer, 'id_rsa', 'mypassphrase')
+          ENV['MCOLLECTIVE_SSH_KEY'] = 'id_rsa'
+          ENV['MCOLLECTIVE_SSH_KEY_PASSPHRASE'] = 'mypassphrase'
 
           @plugin.send(:makehash, {}).should == 'hash'
         end

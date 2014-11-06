@@ -99,7 +99,7 @@ module MCollective
       end
 
       def callerid
-        'sshkey=%s' % Etc.getpwuid(Process.uid).name
+        'sshkey=%s' % (ENV['MCOLLECTIVE_CALLERID'] ? ENV['MCOLLECTIVE_CALLERID'] : Etc.getpwuid(Process.uid).name)
       end
 
       private
@@ -190,8 +190,12 @@ module MCollective
       end
 
       # Adds a key to a signer object and disables ssh-agent
-      def add_key_to_signer(signer, key)
-        signer.add_key_file(key)
+      def add_key_to_signer(signer, key, passphrase=nil)
+        if passphrase != nil
+          signer.add_key_file(key, passphrase)
+        else
+          signer.add_key_file(key)
+        end
         signer.use_agent = false
       end
 
@@ -201,11 +205,15 @@ module MCollective
 
         # Check if the client is signing its request with a predefined
         # private key. If this is the case, disable ssh-agent.
-        if @initiated_by == :client && (private_key = lookup_config_option('private_key'))
-          unless File.exists?(private_key)
-            raise("Cannot sign request - private key not found: '%s'" % private_key)
-          else
-            add_key_to_signer(signer, private_key)
+        if @initiated_by == :client
+          if ENV['MCOLLECTIVE_SSH_KEY']
+            add_key_to_signer(signer, ENV['MCOLLECTIVE_SSH_KEY'], ENV['MCOLLECTIVE_SSH_KEY_PASSPHRASE'])
+          elsif private_key = lookup_config_option('private_key')
+            unless File.exists?(private_key)
+              raise("Cannot sign request - private key not found: '%s'" % private_key)
+            else
+              add_key_to_signer(signer, private_key, lookup_config_option('private_key_passphrase'))
+            end
           end
         elsif @initiated_by == :node
           if private_key = lookup_config_option('private_key')

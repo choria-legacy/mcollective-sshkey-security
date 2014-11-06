@@ -86,6 +86,9 @@ By default clients using the sshkey security plugin will use ssh-agent to sign a
 using the sender's public key found in its __known_hosts__ file. However just like servers, clients can be configured to change this default
 behavior.
 
+Clients will by default use the username of the unix user which is logged in, but this can be overridden using the MCOLLECTIVE_CALLERID environment
+variable.
+
 ###private_key
 
 Setting this option will cause the client to no longer use ssh-agent and directly look up the private key to sign the request with.
@@ -172,12 +175,21 @@ securityprovider = sshkey
 ### Custom private keys
 
 In cases where ssh-agent my not be running on the client or when signing with the default keys on the server might
-not be suitable, it is possible to configure a custom private key to do the signing with.
+not be suitable, it is possible to configure a custom private key to do the signing with. You can optionally
+supply the passphrase for the key if it has one.
 
 ```
 #client
 securityprovider = sshkey
 plugin.sshkey.client.private_key = /home/bob/.ssh/my_other_private_key
+plugin.sshkey.client.private_key_passphrase = mypassphrase
+```
+
+Alternatively, you can supply the private key file (and optionally passphrase) to the client through an
+environment variable.
+
+```
+MCOLLECTIVE_SSH_KEY=/home/bob/.ssh/my_other_private_key MCOLLECTIVE_SSH_KEY_PASSPHRASE="examplepass" mco find
 ```
 
 ```
