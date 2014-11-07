@@ -99,7 +99,7 @@ module MCollective
       end
 
       def callerid
-        'sshkey=%s' % (ENV['MCOLLECTIVE_CALLERID'] ? ENV['MCOLLECTIVE_CALLERID'] : Etc.getpwuid(Process.uid).name)
+        'sshkey=%s' % (ENV['MCOLLECTIVE_SSH_CALLERID'] ? ENV['MCOLLECTIVE_SSH_CALLERID'] : Etc.getpwuid(Process.uid).name)
       end
 
       private

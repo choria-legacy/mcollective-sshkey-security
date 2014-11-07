@@ -22,7 +22,7 @@ module MCollective
 
     describe Sshkey do
       before do
-        ENV['MCOLLECTIVE_CALLERID'] = nil # Make sure to blank these before tests
+        ENV['MCOLLECTIVE_SSH_CALLERID'] = nil # Make sure to blank these before tests
         ENV['MCOLLECTIVE_SSH_KEY'] = nil
         ENV['MCOLLECTIVE_SSH_KEY_PASSPHRASE'] = nil
 
@@ -221,7 +221,7 @@ module MCollective
         end
         context 'with environment variable' do
           it 'should return the callerid in the correct format' do
-            ENV['MCOLLECTIVE_CALLERID'] = 'rspec2'
+            ENV['MCOLLECTIVE_SSH_CALLERID'] = 'rspec2'
             @plugin.callerid.should == 'sshkey=rspec2'
           end
         end

@@ -86,7 +86,7 @@ By default clients using the sshkey security plugin will use ssh-agent to sign a
 using the sender's public key found in its __known_hosts__ file. However just like servers, clients can be configured to change this default
 behavior.
 
-Clients will by default use the username of the unix user which is logged in, but this can be overridden using the MCOLLECTIVE_CALLERID environment
+Clients will by default use the username of the unix user which is logged in, but this can be overridden using the MCOLLECTIVE_SSH_CALLERID environment
 variable.
 
 ###private_key
