@@ -27,6 +27,7 @@ module MCollective
 
       def initialize
         @known_hosts_cache = {}
+        @known_hosts_mtime = 0
         super
       end
 
