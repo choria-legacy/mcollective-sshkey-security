@@ -488,6 +488,15 @@ module MCollective
             @plugin.send(:find_key_in_known_hosts, 'rspec.com', 'known_hosts')
           }.to raise_error
         end
+
+        it 'should not fail if the ssh_known_hosts file contains garbage' do
+          File.stubs(:exists?).with('known_hosts').returns(true)
+          File.stubs(:mtime).with('known_hosts').returns(1)
+          File.stubs(:read).with('known_hosts').returns("other_example_host.dev############################################################\nrspec.com,192.167.1.1 ssh-rsa 123")
+
+          result = @plugin.send(:find_key_in_known_hosts, 'rspec.com', 'known_hosts')
+          result.should == 'ssh-rsa 123'
+        end
       end
 
 
