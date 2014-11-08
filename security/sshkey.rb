@@ -263,6 +263,7 @@ module MCollective
           File.read(known_hosts).each_line do |line|
             next if line =~ /^#/
             fields = line.split
+            next if fields.count < 3
             key = fields[-2] << ' ' << fields[-1]
             fields[0].split(',').each do |host|
               @known_hosts_cache[host] = key
