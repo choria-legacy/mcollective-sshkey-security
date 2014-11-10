@@ -462,13 +462,23 @@ module MCollective
       describe '#find_key_in_known_hosts' do
         it 'should return the key if it was found in the known_hosts file' do
           File.stubs(:exists?).with('known_hosts').returns(true)
+          File.stubs(:mtime).with('known_hosts').returns(1)
           File.stubs(:read).with('known_hosts').returns('rspec.com,192.167.1.1 ssh-rsa 123')
 
           result = @plugin.send(:find_key_in_known_hosts, 'rspec.com', 'known_hosts')
           result.should == 'ssh-rsa 123'
 
+          File.stubs(:read) do
+            raise_error(Spec::Expectations::ExpectationNotMetError, 'Should not try to re-read known_hosts file')
+          end
+
           result = @plugin.send(:find_key_in_known_hosts, '192.167.1.1', 'known_hosts')
           result.should == 'ssh-rsa 123'
+
+          File.stubs(:mtime).with('known_hosts').returns(2)
+          File.stubs(:read).with('known_hosts').returns('rspec.com,192.167.1.1 ssh-rsa 456')
+          result = @plugin.send(:find_key_in_known_hosts, '192.167.1.1', 'known_hosts')
+          result.should == 'ssh-rsa 456'
         end
 
         it 'should fail if the key cannot be found' do
@@ -477,6 +487,15 @@ module MCollective
           expect{
             @plugin.send(:find_key_in_known_hosts, 'rspec.com', 'known_hosts')
           }.to raise_error
+        end
+
+        it 'should not fail if the ssh_known_hosts file contains garbage' do
+          File.stubs(:exists?).with('known_hosts').returns(true)
+          File.stubs(:mtime).with('known_hosts').returns(1)
+          File.stubs(:read).with('known_hosts').returns("other_example_host.dev############################################################\nrspec.com,192.167.1.1 ssh-rsa 123")
+
+          result = @plugin.send(:find_key_in_known_hosts, 'rspec.com', 'known_hosts')
+          result.should == 'ssh-rsa 123'
         end
       end
 
