@@ -1,0 +1,39 @@
+# VERSION is subbed out during rake srpm process
+%global realversion <%= @version %>
+%global rpmversion <%= @rpmversion %>
+
+Summary:   Security Plugin that uses ssh keys for signing
+Name:      mcollective-sshkey-security
+Version:   %{rpmversion}
+Release:   <%= @rpmrelease -%>%{?dist}
+Vendor:    %{?_host_vendor}
+License:   ASL 2.0
+URL:       https://github.com/puppetlabs/mcollective-sshkey-security
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildArch: noarch
+Group:     System Tools
+Source0:   mcollective-sshkey-security-%{realversion}.tar.gz
+Requires:  mcollective-common >= 2.2.1
+
+%description
+Security Plugin that uses ssh keys for signing
+
+%prep
+%setup -q  -n %{name}-%{realversion}
+
+%build
+
+%install
+rm -rf %{buildroot}
+%{__install} -d -m0755 %{buildroot}%{_libexecdir}/mcollective/mcollective
+cp -a security %{buildroot}%{_libexecdir}/mcollective/mcollective
+
+%clean
+rm -rf %{buildroot}
+
+%files
+%{_libexecdir}/mcollective/mcollective/security/*
+
+%changelog
+* <%= Time.now.strftime("%a %b %d %Y") %> Puppet Labs Release <info@puppetlabs.com> -  <%= @rpmversion %>-<%= @rpmrelease %>
+- Build for <%= @version %>

@@ -1,0 +1,14 @@
+---
+project: 'mcollective-sshkey-security'
+author: 'Puppet Labs'
+email: 'info@puppetlabs.com'
+homepage: 'https://github.com/puppetlabs/mcollective-sshkey-security'
+summary: 'Security Plugin that uses ssh keys for signing'
+description: 'Security Plugin that uses ssh keys for signing'
+# files and gem_files are space separated lists
+files:
+  - security
+# List of packaging related templates to evaluate before the tarball is packed
+templates:
+  - "ext/redhat/mcollective-sshkey-security.spec.erb"
+  - "ext/debian/changelog.erb"
