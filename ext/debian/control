@@ -1,0 +1,13 @@
+Source: mcollective-sshkey-security
+Homepage: https://github.com/puppetlabs/mcollective-sshkey-security
+Section: utils
+Priority: extra
+Maintainer: Puppet Labs
+Build-Depends: cdbs, debhelper
+Standards-Version: 3.8.0
+
+Package: mcollective-sshkey-security
+Architecture: all
+Description: Security Plugin that uses ssh keys for signing
+Depends: mcollective-common(>= 2.2.1)
+
