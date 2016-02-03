@@ -284,3 +284,6 @@ plugin.sshkey.server.overwrite_stored_keys = 1
 
 Note that by default the ability to learn and overwrite keys is disabled. Enabling these settings reduces the
 security of the sshkey security plugin.
+
+## Actionpolicy-auth configuration
+The SSHKey security plugin defaults to caller IDs of `sshkey=<USERNAME>`, where `<USERNAME>` is the local username of the client process. If your public keys are staticly predefined, or dynamicly learned this kind of caller ID is cryptographically authenticated.  It is strongly recommended that you do not enable the override existing keys option of sshkey.
