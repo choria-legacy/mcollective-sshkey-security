@@ -1,3 +1,7 @@
+# 0.5.1
+
+* Prevent public key overwriting attack via identity (MCOP-600). This was registered as CVE-2017-2298.
+
 # 0.5.0
 
 * Use Etc.getpwuid instead of Etc.getlogin (PR#6)
