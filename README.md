@@ -1,5 +1,13 @@
 # MCollective SSH Key Security Plugin
 
+## Deprecation Notice
+
+This repository holds legacy code related to The Marionette Collective project.  That project has been deprecated by Puppet Inc and the code donated to the Choria Project.
+
+Please review the [Choria Project Website](https://choria.io) and specifically the [MCollective Deprecation Notice](https://choria.io/mcollective) for further information and details about the future of the MCollective project.
+
+## Overview
+
 A security plugin that uses ssh keys to sign and validate messages.
 
 ## Installation
@@ -20,7 +28,7 @@ By default a server using the sshkey security plugin will look for a public key 
 to verify a request. It will respond by signing the reply with its private key. There are, however, a list of options that
 can be configured that will change this default behavior.
 
-###private_key
+### private_key
 
 This will change the private key used by the server to sign its replies.
 
@@ -30,7 +38,7 @@ If not set, the private key will first default to '/etc/ssh/ssh_host_dsa_key'. I
 '/etc/ssh/ssh_host_rsa_key'
 
 
-###authorized_keys
+### authorized_keys
 
 This will set the authorized_keys file that the server will use to find the client's public key. The
 authorized_keys file used will default to /home/bob/.ssh/authorized_keys, where bob is the caller's id.
@@ -42,7 +50,7 @@ the user calling the agent, e.g.
 
     plugin.sshkey.server.authorized_keys = /etc/admin_authorized_keys/%u
 
-###send_key
+### send_key
 
 This will send the specified public key as part of the reply to the client. This is useful when you do not want to manage
 public key distribution by hand (see __learn_private_keys__ option).
@@ -51,7 +59,7 @@ public key distribution by hand (see __learn_private_keys__ option).
 
 If not set, send_key will default to false.
 
-###publickey_dir
+### publickey_dir
 
 Setting this option will cause the server to no longer look for a key in its authorized_keys file and instead look for user
 specific public keys inside this directory. These keys will be stored in the format __alice_pub.pem__. When publickey_dir is used in
@@ -59,7 +67,7 @@ conjunction with __learn_public_keys__, the server will store newly received pub
 
     plugin.sshkey.server.publickey_dir = /etc/mcollective/shared_keys
 
-###learn_public_keys
+### learn_public_keys
 
 Used in conjunction with __publickey_dir__. This will allow the server to store newly received public keys in
 the shared public key directory.
@@ -68,7 +76,7 @@ the shared public key directory.
 
 If not set, learn_public_keys will default to false.
 
-###overwrite_stored_key
+### overwrite_stored_key
 
 Used in conjunction with __learn_public_keys__ and __publickey_dir__. If set to true, new public keys received from client requests
 that do not match the currently stored key will be overwritten, and the new key used.
@@ -89,7 +97,7 @@ behavior.
 Clients will by default use the username of the unix user which is logged in, but this can be overridden using the MCOLLECTIVE_SSH_CALLERID environment
 variable.
 
-###private_key
+### private_key
 
 Setting this option will cause the client to no longer use ssh-agent and directly look up the private key to sign the request with.
 Note that this will not work if the private key has a passphrase set.
@@ -98,7 +106,7 @@ Note that this will not work if the private key has a passphrase set.
 
 If not set, the client will default to using ssh-agent.
 
-###known_hosts
+### known_hosts
 
 Setting this option will change the known_hosts file that the client will use to identify the server's public key when verifying the reply.
 
@@ -107,13 +115,13 @@ Setting this option will change the known_hosts file that the client will use to
 If not set, the client known_hosts file will default to /home/alice/.ssh/known_hosts
 
 
-###authorized_keys
+### authorized_keys
 
 In cases where the host verificiation step is not required, the client can use a authorized_keys file which will be used to verify the reply.
 
     plugin.sshkey.client.authorized_keys = /home/bob/.ssh/authorized_keys
 
-###send_key
+### send_key
 
 This will send the specified public key as part of the request to the server. This is useful when you do not want to manage
 public key distribution by hand (see __learn_public_keys__)
@@ -122,7 +130,7 @@ public key distribution by hand (see __learn_public_keys__)
 
 If not set, send_key will default to false.
 
-###publickey_dir
+### publickey_dir
 
 Setting this option will cause the client to no longer look for a key in its known_hosts file and instead look for host
 specific public keys inside this directory. File will be stored in the format __host1.your.com_pub.pem__. When publickey_dir is used in
@@ -131,7 +139,7 @@ directory. Note that your publickey_dir must be created before using it.
 
     plugin.sshkey.client.publickey_dir = /home/alice/ssh/shared_keys
 
-###learn_public_keys
+### learn_public_keys
 
 Used in conjunction with __publickey_dir__. This will allow the client to store newly received public keys in
 the shared public key directory.
@@ -140,7 +148,7 @@ the shared public key directory.
 
 If not set, learn_public_keys will default to false.
 
-###overwrite_stored_key
+### overwrite_stored_key
 
 Used in conjunction with __send_key__ and __publickey_dir__. If set to true, new public keys received from host replies
 that do not match the currently stored key will be overwritten, and the new key used.
@@ -287,10 +295,3 @@ security of the sshkey security plugin.
 
 ## Actionpolicy-auth configuration
 The SSHKey security plugin defaults to caller IDs of `sshkey=<USERNAME>`, where `<USERNAME>` is the local username of the client process. If your public keys are staticly predefined, or dynamically learned this kind of caller ID is cryptographically authenticated.  It is strongly recommended that you do not enable the `plugin.sshkey.server.overwrite_stored_key` option as this could allow an attacker to simply reuse your callerid to submit requests.
-
-## Maintenance
-
-Maintainers: Alessandro Parisi <alessandro@puppet.com>, Michael Smith
-<michael.smith@puppet.com>, Michal Ruzicka <michal.ruzicka@puppet.com>.
-
-Tickets: File bug tickets at https://tickets.puppet.com/browse/MCOP.
